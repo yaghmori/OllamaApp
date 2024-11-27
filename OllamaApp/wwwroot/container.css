@@ -1,0 +1,39 @@
+﻿/* Overall container for the body content */
+.page-body {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 50px);
+    width: 100%;
+    padding: 10px;
+    overflow: hidden; /* Prevent scrolling the entire page */
+    gap: 10px;
+}
+
+/* Fixed header directly below the AppBar */
+.head {
+    display: flex;
+    flex-direction: column;
+    background-color: #f1f1f1;
+    padding: 20px;
+    width: 100%;
+    gap: 10px;
+    flex-shrink: 0; /* Prevent shrinking of the header */
+    border-radius: 10px;
+}
+
+/* Scrollable content area */
+.content {
+    flex-grow: 1; /* Takes up remaining space */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 15px;
+    width:100%;
+    background-color: #ffffff;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
+    border-radius: 10px;
+}
+body {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+

@@ -1,0 +1,149 @@
+﻿@using Markdig
+@page "/ollama"
+@rendermode InteractiveAuto
+<PageTitle>Ollama</PageTitle>
+
+
+
+<div class="page-body">
+    <div class="head">
+        <h1>Ollama</h1>
+        <div class="d-flex flex-row gap-2 align-items-center">
+            <InputText type="text" class="form-control" placeholder="Connection string" @bind-Value="@ConnectionString" style="flex-grow:1" />
+            <button @onclick="ConnectAsync" class="btn @(Status==true?"btn-outline-success":"btn-outline-warning") btn-sm">
+                <div class="d-flex flex-row align-items-center gap-2">
+
+                    <i class="material-icons">
+                        @(Status == true ? "check_circle" : Status == null ? "Connect" : "warning")
+                    </i>
+                    @(Status == true ? "Connected" : Status == null ? "Connect" : "Connection failed")
+                </div>
+
+            </button>
+        </div>
+        @if (Models.Count() > 0)
+        {
+
+            <InputSelect class="form-select" @bind-Value="SelectedModel">
+                @foreach (var model in Models)
+                {
+                    <option>@model.Name</option>
+                }
+            </InputSelect>
+        }
+        <InputTextArea type="text" class="form-control" placeholder="prompt" @bind-Value="@Input" style="width:100%" />
+        <div class="d-flex flex-row gap-2 align-items-center justify-content-between">
+            <div class="d-flex flex-row gap-2 align-items-center">
+                <button @onclick="()=>CallAsync(Input)" disabled="@(!IsValid)" class="btn btn-primary">
+                    <div class="d-flex flex-row align-items-center gap-2">
+
+                        <i class="material-icons">send</i>
+                        SUBMIT
+                    </div>
+                </button>
+                <div>
+                    <div class="form-check">
+                        <InputCheckbox class="form-check-input" @bind-Value="IsStreming" id="flexCheckDefault" />
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Streming
+                        </label>
+                    </div>
+
+
+                </div>
+
+            </div>
+            @if (Messages.Count() > 0)
+            {
+                <a class="btn btn-outline-danger btn-sm" @onclick="()=>Messages.Clear()">
+                    <i class="bi bi-trash-fill"></i>
+                </a>
+            }
+        </div>
+
+    </div>
+    @if (!string.IsNullOrEmpty(ExceptionMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading">Exception!</h4>
+            <p>@ExceptionMessage</p>
+        </div>
+    }
+    else
+    {
+        @if (Messages.Count() > 0)
+        {
+            <div class="imessage content" id="scrollable_div">
+                @foreach (var message in Messages)
+                {
+                    var className = message.IsResponse ? "from-them" : "from-me";
+
+                    @if (message.IsResponse)
+                    {
+                        if (message.IsLoading)
+                        {
+                            <div class="mx-4">
+
+                                <div class="loader"></div>
+                            </div>
+
+
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-column gap-1">
+
+                                <p class="@className">
+                                    <span>@((MarkupString)Markdown.ToHtml(message.Message))</span>
+                                </p>
+                                @if (message.IsResponse && message.Message?.Length > 0)
+                                {
+                                    <div class="message-bar">
+                                        @if (clipboard)
+                                        {
+
+                                            <i class="bi bi-check2 clipboard mx-2"></i>
+                                        }
+                                        else
+                                        {
+
+                                            <i class="bi bi-clipboard clipboard mx-2" @onclick="()=>CopyTextToClipboard(message.Message)"></i>
+                                        }
+
+                                        @if (resend)
+                                        {
+
+                                            <i class="bi bi-check2 resend mx-2"></i>
+                                        }
+                                        else
+                                        {
+
+                                            <i class="bi bi-arrow-repeat resend mx-2" @onclick="()=>Resend(message?.Request?.Message)"></i>
+                                        }
+
+                                    </div>
+                                }
+
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="@className">
+
+                            <span>@message.Message</span>
+                        </p>
+
+                    }
+
+
+
+
+
+                }
+            </div>
+        }
+    }
+</div>
+
+
